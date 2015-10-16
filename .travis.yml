@@ -3,7 +3,7 @@ python:
     - "2.7"
 
 env:
-    - PLATFORMIO_CI_SRC=embedded
+    - PLATFORMIO_CI_SRC=vulcanus-unus-embedded
 
 install:
     - python -c "$(curl -fsSL https://raw.githubusercontent.com/platformio/platformio/master/scripts/get-platformio.py)"
