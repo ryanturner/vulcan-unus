@@ -1,0 +1,263 @@
+{
+    "version": 1,
+    "id": "cf41c507-eeed-4e59-908b-1b172f7e37c6",
+    "ports": [
+        {
+            "pin": 1,
+            "label": "Rear Brake Light Flasher",
+            "defaultDuration": -1
+        },
+        {
+            "pin": 2,
+            "label": "Rear License Plate LEDs",
+            "defaultDuration": -1
+        },
+        {
+            "pin": 3,
+            "label": "Left Side LED Warn",
+            "defaultDuration": -1
+        },
+        {
+            "pin": 4,
+            "label": "Left Side LED Work",
+            "defaultDuration": -1
+        },
+        {
+            "pin": 5,
+            "label": "Right Side LED Warn",
+            "defaultDuration": -1
+        },
+        {
+            "pin": 6,
+            "label": "Right Side LED Work",
+            "defaultDuration": -1
+        },
+        {
+            "pin": 7,
+            "label": "Front Grill LEDs",
+            "defaultDuration": -1
+        },
+        {
+            "pin": 8,
+            "label": "Front Dash Light",
+            "defaultDuration": -1
+        },
+        {
+            "pin": 9,
+            "label": "Front Wigwags",
+            "defaultDuration": -1
+        },
+        {
+            "pin": 10,
+            "label": "Inverter",
+            "defaultDuration": -1
+        }
+    ],
+    "switches": [
+        {
+            "label": "Left Side Warn",
+            "enabled": true,
+            "size": 2,
+            "states": [
+                {
+                    "label": "off",
+                    "portStates": {
+                        "3": 0
+                    },
+                    "otherSwitchEnables": {},
+                    "otherSwitchStates": {}
+                },
+                {
+                    "label": "on",
+                    "portStates": {
+                        "3": 1
+                    },
+                    "otherSwitchEnables": {},
+                    "otherSwitchStates": {
+                        "1": 0
+                    }
+                }
+            ]
+        },
+        {
+            "label": "Left Side Work",
+            "enabled": true,
+            "size": 2,
+            "states": [
+                {
+                    "label": "off",
+                    "portStates": {
+                        "4": 1
+                    },
+                    "otherSwitchEnables": {},
+                    "otherSwitchStates": {}
+                },
+                {
+                    "label": "on",
+                    "portStates": {
+                        "4": 1
+                    },
+                    "otherSwitchEnables": {},
+                    "otherSwitchStates": {
+                        "0": 1
+                    }
+                }
+            ]
+        },
+        {
+            "label": "Right Side Warn",
+            "enabled": true,
+            "size": 2,
+            "states": [
+                {
+                    "label": "off",
+                    "portStates": {
+                        "5": 0
+                    },
+                    "otherSwitchEnables": {},
+                    "otherSwitchStates": {}
+                },
+                {
+                    "label": "on",
+                    "portStates": {
+                        "5": 1
+                    },
+                    "otherSwitchEnables": {},
+                    "otherSwitchStates": {
+                        "3": 0
+                    }
+                }
+            ]
+        },
+        {
+            "label": "Right Side Work",
+            "enabled": true,
+            "size": 2,
+            "states": [
+                {
+                    "label": "off",
+                    "portStates": {
+                        "6": 0
+                    },
+                    "otherSwitchEnables": {},
+                    "otherSwitchStates": {}
+                },
+                {
+                    "label": "on",
+                    "portStates": {
+                        "5": 0
+                    },
+                    "otherSwitchEnables": {},
+                    "otherSwitchStates": {
+                        "2": 0
+                    }
+                }
+            ]
+        },
+        {
+            "label": "Rear Warn",
+            "enabled": true,
+            "size": 2,
+            "states": [
+                {
+                    "label": "off",
+                    "portStates": {
+                        "1": 0,
+                        "2": 0
+                    },
+                    "otherSwitchEnables": {},
+                    "otherSwitchStates": {}
+                },
+                {
+                    "label": "on",
+                    "portStates": {
+                        "1": 1,
+                        "2": 1
+                    },
+                    "otherSwitchEnables": {},
+                    "otherSwitchStates": {}
+                }
+            ]
+        },
+        {
+            "label": "Rear Work",
+            "enabled": true,
+            "size": 2,
+            "states": [
+                {
+                    "label": "off",
+                    "portStates": {
+                        "1": 0,
+                        "2": 0
+                    },
+                    "otherSwitchEnables": {},
+                    "otherSwitchStates": {}
+                },
+                {
+                    "label": "on",
+                    "portStates": {
+                        "1": 1,
+                        "2": 1
+                    },
+                    "otherSwitchEnables": {},
+                    "otherSwitchStates": {
+                        "5": 0
+                    }
+                }
+            ]
+        },
+        {
+            "label": "Front Warn",
+            "enabled": true,
+            "size": 2,
+            "states": [
+                {
+                    "label": "off",
+                    "portStates": {
+                        "7": 0,
+                        "8": 0,
+                        "9": 0
+                    },
+                    "otherSwitchEnables": {},
+                    "otherSwitchStates": {}
+                },
+                {
+                    "label": "on",
+                    "portStates": {
+                        "7": 1,
+                        "8": 1,
+                        "9": 1
+                    },
+                    "otherSwitchEnables": {},
+                    "otherSwitchStates": {}
+                }
+            ]
+        },
+        {
+            "label": "Master Warning",
+            "enabled": true,
+            "size": 3,
+            "states": [
+                {
+                    "label": "off",
+                    "portStates": {},
+                    "otherSwitchEnables": {},
+                    "otherSwitchStates": {}
+                },
+                {
+                    "label": "rear",
+                    "portStates": {},
+                    "otherSwitchEnables": {},
+                    "otherSwitchStates": {}
+                },
+                {
+                    "label": "all",
+                    "portStates": {},
+                    "otherSwitchEnables": {},
+                    "otherSwitchStates": {}
+                }
+            ]
+        }
+    ],
+    "sensors": []
+}
