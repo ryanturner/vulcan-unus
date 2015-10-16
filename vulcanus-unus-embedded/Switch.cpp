@@ -1,6 +1,8 @@
 #include "Arduino.h"
+#include <string.h>
 #include "Switch.h"
-Switch::Switch(int id, int pin, char label[], int groupId, boolean isGroupMaster, int defaultDuration) {
+
+Switch::Switch(int id, int pin, String label, int groupId, boolean isGroupMaster, int defaultDuration) {
 }
 int Switch::getId() {
   return _id;
@@ -13,10 +15,10 @@ int Switch::getPin() {
 void Switch::setPin(int pin) {
   _pin = pin;
 }
-char[] Switch::getLabel() {
+String Switch::getLabel() {
   return _label;
 }
-void Switch::setLabel(char label[]) {
+void Switch::setLabel(String label) {
   _label = label;
 }
 boolean Switch::getIsGroupMaster() {

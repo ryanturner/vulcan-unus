@@ -1,3 +1,5 @@
+#include <Arduino.h>
+
 template <class T> int EEPROM_write_setting(int address, const T& value)
 {
   const byte* p = (const byte*)(const void*)&value;
