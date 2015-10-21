@@ -1,6 +1,7 @@
 package co.vulcanus.dux.ui.fragment;
 
-import android.graphics.Color;
+import android.content.SharedPreferences;
+import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
 import android.os.Bundle;
 import android.util.Log;
@@ -8,18 +9,15 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
-
-import java.io.IOException;
-import java.util.ArrayList;
+import android.widget.LinearLayout;
 
 import co.vulcanus.dux.R;
 import co.vulcanus.dux.model.DeviceState;
 import co.vulcanus.dux.model.Pin;
-import co.vulcanus.dux.service.ApiService;
+import co.vulcanus.dux.service.RestClient;
 import co.vulcanus.dux.util.Constants;
 import retrofit.Call;
 import retrofit.Callback;
-import retrofit.GsonConverterFactory;
 import retrofit.Response;
 import retrofit.Retrofit;
 
@@ -27,7 +25,7 @@ import retrofit.Retrofit;
 /**
  * A placeholder fragment containing a simple view.
  */
-public class MainActivityFragment extends Fragment implements View.OnClickListener {
+public class MainActivityFragment extends Fragment implements View.OnClickListener, SharedPreferences.OnSharedPreferenceChangeListener {
     Button button1;
     Button button2;
     Button button3;
@@ -45,24 +43,25 @@ public class MainActivityFragment extends Fragment implements View.OnClickListen
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_main, container, false);
-        button1 = (Button) view.findViewById(R.id.button);
-        button1.setOnClickListener(this);
-        button2 = (Button) view.findViewById(R.id.button2);
-        button2.setOnClickListener(this);
-        button3 = (Button) view.findViewById(R.id.button3);
-        button3.setOnClickListener(this);
-        button4 = (Button) view.findViewById(R.id.button4);
-        button4.setOnClickListener(this);
-        button5 = (Button) view.findViewById(R.id.button5);
-        button5.setOnClickListener(this);
-        button6 = (Button) view.findViewById(R.id.button6);
-        button6.setOnClickListener(this);
-        button7 = (Button) view.findViewById(R.id.button7);
-        button7.setOnClickListener(this);
-        button8 = (Button) view.findViewById(R.id.button8);
-        button8.setOnClickListener(this);
-        this.deviceState = new DeviceState();
+        LinearLayout linearLayout = (LinearLayout)view.findViewById(R.id.linearLayout);
+
+
+        for(int i = 0; i < linearLayout.getChildCount(); i++) {
+            Button button = (Button) linearLayout.getChildAt(i);
+            button.setOnClickListener(this);
+
+        }
+        this.setDeviceState();
         return view;
+    }
+    public void setDeviceState() {
+        SharedPreferences SP = PreferenceManager.getDefaultSharedPreferences(this.getContext());
+        String firstPin = SP.getString(Constants.EMBEDDED_FIRST_PIN,
+                Constants.EMBEDDED_FIRST_PIN_DEFAULT);
+        String numberOfRelays = SP.getString(Constants.EMBEDDED_NUMBER_OF_RELAYS,
+                Constants.EMBEDDED_NUMBER_OF_RELAYS_DEFAULT);
+        this.deviceState = new DeviceState(Integer.parseInt(firstPin), Integer.parseInt(firstPin) +
+                Integer.parseInt(numberOfRelays));
     }
 
     @Override
@@ -107,14 +106,40 @@ public class MainActivityFragment extends Fragment implements View.OnClickListen
         }
     }
 
-    private void togglePin(View v, int pin) {
-        int pinValue = this.deviceState.getPinValue(pin);
-        if(pinValue == 1) {
-            this.deviceState.setPin(pin, 0);
-            v.setBackgroundColor(Color.parseColor("#ffff4444"));
+    private void togglePin(View v, int pinNumber) {
+        Pin pin = this.deviceState.getPin(pinNumber);
+        SharedPreferences SP = PreferenceManager.getDefaultSharedPreferences(this.getContext());
+        if(SP.getBoolean(Constants.EMBEDDED_REVERSE_LOGIC, Constants.EMBEDDED_REVERSE_LOGIC_DEFAULT)) {
+            v.setSelected(!pin.isHigh());
         } else {
-            this.deviceState.setPin(pin, 1);
-            v.setBackgroundColor(Color.parseColor("#ffffffff"));
+            v.setSelected(pin.isHigh());
         }
+        pin.setIsHigh(!pin.isHigh());
+        this.deviceState.setPin(pin.getNumber(), pin);
+        Call<String> call = RestClient.getInstance().getService().sendMailbox(this.deviceState);
+        call.enqueue(new Callback<String>() {
+            @Override
+            public void onResponse(Response<String> response, Retrofit retrofit) {
+            }
+
+            @Override
+            public void onFailure(Throwable t) {
+            }
+        });
+    }
+    @Override
+    public void onResume() {
+        super.onResume();
+        PreferenceManager.getDefaultSharedPreferences(getActivity()).unregisterOnSharedPreferenceChangeListener(this);
+    }
+
+    @Override
+    public void onPause() {
+        PreferenceManager.getDefaultSharedPreferences(getActivity()).registerOnSharedPreferenceChangeListener(this);
+        super.onPause();
+    }
+    @Override
+    public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
+        this.setDeviceState();
     }
 }

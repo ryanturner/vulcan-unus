@@ -16,14 +16,9 @@ import co.vulcanus.dux.model.DeviceState;
 public class DeviceStateSerializer implements JsonSerializer<DeviceState> {
     public JsonElement serialize(final DeviceState deviceState, final Type type, final JsonSerializationContext context) {
         JsonObject result = new JsonObject();
-        result.add("2", new JsonPrimitive(deviceState.getPinValue(2)));
-        result.add("3", new JsonPrimitive(deviceState.getPinValue(3)));
-        result.add("4", new JsonPrimitive(deviceState.getPinValue(4)));
-        result.add("5", new JsonPrimitive(deviceState.getPinValue(5)));
-        result.add("6", new JsonPrimitive(deviceState.getPinValue(6)));
-        result.add("7", new JsonPrimitive(deviceState.getPinValue(7)));
-        result.add("8", new JsonPrimitive(deviceState.getPinValue(8)));
-        result.add("9", new JsonPrimitive(deviceState.getPinValue(9)));
+        for(int i = deviceState.getFirstPin(); i < deviceState.getLastPin(); i++) {
+            result.add("" + i, new JsonPrimitive(deviceState.getPin(i).isHigh() ? 1 : 0));
+        }
         return result;
     }
 }

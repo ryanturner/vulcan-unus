@@ -5,7 +5,7 @@ package co.vulcanus.dux.model;
  */
 public class Pin {
     private int number;
-    private boolean state;
+    private boolean isHigh;
 
     public int getNumber() {
         return number;
@@ -15,11 +15,11 @@ public class Pin {
         this.number = number;
     }
 
-    public boolean isState() {
-        return state;
+    public boolean isHigh() {
+        return isHigh;
     }
 
-    public void setState(boolean state) {
-        this.state = state;
+    public void setIsHigh(boolean high) {
+        this.isHigh = high;
     }
 }

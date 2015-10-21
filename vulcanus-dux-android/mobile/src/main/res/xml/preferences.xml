@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+    <EditTextPreference android:title="Controller's Host"
+        android:key="embedded_host"
+        android:summary="The URL to the controller, excluding trailing slash."
+        android:defaultValue="http://192.168.240.1"></EditTextPreference>
+    <EditTextPreference android:title="Controller's Username"
+        android:key="embedded_user"
+        android:summary="The username for the controller."
+        android:defaultValue="root"></EditTextPreference>
+    <EditTextPreference android:title="Controller's Password"
+        android:key="embedded_password"
+        android:summary="The password for the controller."
+        android:defaultValue="doghunter"></EditTextPreference>
+    <EditTextPreference android:title="Controller's First Pin"
+        android:key="embedded_first_pin"
+        android:summary="The first pin number for the first relay."
+        android:defaultValue="2"
+        android:inputType="number"></EditTextPreference>
+    <EditTextPreference android:title="Controller's Number of Relays"
+        android:key="embedded_number_of_relays"
+        android:summary="The number of relays in use, normally in increments of 4."
+        android:defaultValue="8"
+        android:inputType="number"></EditTextPreference>
+    <CheckBoxPreference android:title="Controller Reverse Logic"
+        android:key="embedded_reverse_logic"
+        android:defaultValue="true"
+        android:summary="Use this if your relay bank has reverse logic, e.g. if turning a pin off actually turns the relay on."></CheckBoxPreference>
+    <!--<ListPreference     android:title="Download Details"
+        android:summary="Select the kind of data that you would like to download"
+        android:key="downloadType"
+        android:defaultValue="1"
+        android:entries="@array/listArray"
+        android:entryValues="@array/listValues" />-->
+</PreferenceScreen>

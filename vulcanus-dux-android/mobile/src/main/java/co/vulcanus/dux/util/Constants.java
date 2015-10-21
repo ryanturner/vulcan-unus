@@ -6,4 +6,16 @@ package co.vulcanus.dux.util;
 public class Constants {
     public static final String BASE_URL = "http://10.0.0.154";
     public static final String LOG_TAG = "Vulcanus";
+    public static final int SETTINGS_VERSION = 1;
+    public static final String SETTINGS_KEY = "vulcanus_settings_" + SETTINGS_VERSION;
+    public static final String EMBEDDED_HOST = "embedded_host";
+    public static final String EMBEDDED_USER = "embedded_user";
+    public static final String EMBEDDED_PASSWORD = "embedded_password";
+    public static final String EMBEDDED_FIRST_PIN = "embedded_first_pin";
+    public static final String EMBEDDED_NUMBER_OF_RELAYS = "embedded_number_of_relays";
+    public static final String EMBEDDED_REVERSE_LOGIC = "embedded_reverse_logic";
+    public static final String EMBEDDED_NUMBER_OF_RELAYS_DEFAULT = "8";
+    public static final String EMBEDDED_FIRST_PIN_DEFAULT = "2";
+    public static final boolean EMBEDDED_REVERSE_LOGIC_DEFAULT = true;
+
 }

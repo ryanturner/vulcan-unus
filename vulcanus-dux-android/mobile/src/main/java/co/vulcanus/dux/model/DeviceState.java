@@ -1,14 +1,17 @@
 package co.vulcanus.dux.model;
 
-import android.util.Log;
+import android.content.SharedPreferences;
+import android.preference.PreferenceManager;
+import android.util.Base64;
 
 import com.google.gson.GsonBuilder;
-import com.google.gson.annotations.SerializedName;
+import com.squareup.okhttp.Credentials;
+import com.squareup.okhttp.Interceptor;
+import com.squareup.okhttp.OkHttpClient;
+import com.squareup.okhttp.Request;
 
-import java.lang.reflect.InvocationTargetException;
-import java.util.ArrayList;
+import java.io.IOException;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import co.vulcanus.dux.model.serializer.DeviceStateSerializer;
@@ -25,51 +28,43 @@ import retrofit.Retrofit;
  */
 public class DeviceState {
 
-    private Map<Integer, Integer> pins;
+    private Map<Integer, Pin> pins;
 
-    private ApiService service;
-
-    public void setPin(int pin, int pinValue) {
+    private int firstPin;
+    private int lastPin;
+    public void setPin(int pin, Pin pinValue) {
         pins.put(pin, pinValue);
-        this.updateService();
     }
 
-    public int getPinValue(int pin) {
+    public Pin getPin(int pin) {
         return pins.get(pin);
     }
 
-    public DeviceState() {
-
-        HashMap<Integer, Integer> pins = new HashMap<>();
-        for(int i = 2; i < 10; i++) {
-            pins.put(i, 1);
+    public HashMap<Integer, Pin> createPins(int firstPin, int lastPin) {
+        HashMap<Integer, Pin> pins = new HashMap<>();
+        for(int i = firstPin; i < lastPin; i++) {
+            Pin pin = new Pin();
+            pin.setNumber(i);
+            pin.setIsHigh(true);
+            pins.put(i, pin);
         }
-        this.pins = pins;
+        return pins;
+    }
 
-        Retrofit retrofit = new Retrofit.Builder()
-                .baseUrl(Constants.BASE_URL)
-                .addConverterFactory(GsonConverterFactory.create())
-                .build();
-        this.service = retrofit.create(ApiService.class);
+    public DeviceState(int firstPin, int lastPin) {
+        this.firstPin = firstPin;
+        this.lastPin = lastPin;
+        this.pins = this.createPins(firstPin, lastPin);
+    }
+    public int getFirstPin() {
+        return this.firstPin;
+    }
+    public int getLastPin() {
+        return this.lastPin;
     }
     public String toString() {
         com.google.gson.Gson gson = new GsonBuilder().registerTypeAdapter(DeviceState.class, new
                 DeviceStateSerializer()).create();
         return gson.toJson(this);
-    }
-    private void updateService() {
-        this.updateService(this);
-    }
-    private void updateService(DeviceState state) {
-        Call<String> call = this.service.sendMailbox(state);
-        call.enqueue(new Callback<String>() {
-            @Override
-            public void onResponse(Response<String> response, Retrofit retrofit) {
-            }
-
-            @Override
-            public void onFailure(Throwable t) {
-            }
-        });
     }
 }
