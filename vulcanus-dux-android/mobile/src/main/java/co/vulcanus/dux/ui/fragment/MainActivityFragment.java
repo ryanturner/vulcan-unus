@@ -61,8 +61,15 @@ public class MainActivityFragment extends Fragment implements View.OnClickListen
                 Constants.EMBEDDED_FIRST_PIN_DEFAULT);
         String numberOfRelays = SP.getString(Constants.EMBEDDED_NUMBER_OF_RELAYS,
                 Constants.EMBEDDED_NUMBER_OF_RELAYS_DEFAULT);
+        String host = SP.getString(Constants.EMBEDDED_HOST, Constants.EMBEDDED_HOST_DEFAULT);
+        String username = SP.getString(Constants.EMBEDDED_USER, Constants.EMBEDDED_USER_DEFAULT);
+        String password = SP.getString(Constants.EMBEDDED_PASSWORD, Constants.EMBEDDED_PASSWORD_DEFAULT);
         this.deviceState = new DeviceState(Integer.parseInt(firstPin), Integer.parseInt(firstPin) +
                 Integer.parseInt(numberOfRelays));
+        RestClient.destroyInstance();
+        RestClient.setBaseUrl(host);
+        RestClient.setUsername(username);
+        RestClient.setPassword(password);
     }
 
     @Override
@@ -113,7 +120,6 @@ public class MainActivityFragment extends Fragment implements View.OnClickListen
         boolean reverseLogic = SP.getBoolean(Constants.EMBEDDED_REVERSE_LOGIC, Constants.EMBEDDED_REVERSE_LOGIC_DEFAULT);
         pin.setIsHigh(!pin.isHigh());
         if(pin.isHigh() ^ reverseLogic) { //Good 'ol xor!
-            Log.d(Constants.LOG_TAG, "Button should be pressed, but ");
             v.getBackground().setColorFilter(getResources().getColor(R.color.material_red_500), PorterDuff.Mode.MULTIPLY);
         } else {
             v.getBackground().setColorFilter(null);
