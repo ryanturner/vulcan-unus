@@ -1,6 +1,7 @@
 package co.vulcanus.dux.ui.fragment;
 
 import android.content.SharedPreferences;
+import android.graphics.PorterDuff;
 import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
 import android.os.Bundle;
@@ -109,12 +110,14 @@ public class MainActivityFragment extends Fragment implements View.OnClickListen
     private void togglePin(View v, int pinNumber) {
         Pin pin = this.deviceState.getPin(pinNumber);
         SharedPreferences SP = PreferenceManager.getDefaultSharedPreferences(this.getContext());
-        if(SP.getBoolean(Constants.EMBEDDED_REVERSE_LOGIC, Constants.EMBEDDED_REVERSE_LOGIC_DEFAULT)) {
-            v.setSelected(!pin.isHigh());
-        } else {
-            v.setSelected(pin.isHigh());
-        }
+        boolean reverseLogic = SP.getBoolean(Constants.EMBEDDED_REVERSE_LOGIC, Constants.EMBEDDED_REVERSE_LOGIC_DEFAULT);
         pin.setIsHigh(!pin.isHigh());
+        if(pin.isHigh() ^ reverseLogic) { //Good 'ol xor!
+            Log.d(Constants.LOG_TAG, "Button should be pressed, but ");
+            v.getBackground().setColorFilter(getResources().getColor(R.color.material_red_500), PorterDuff.Mode.MULTIPLY);
+        } else {
+            v.getBackground().setColorFilter(null);
+        }
         this.deviceState.setPin(pin.getNumber(), pin);
         Call<String> call = RestClient.getInstance().getService().sendMailbox(this.deviceState);
         call.enqueue(new Callback<String>() {

@@ -18,56 +18,48 @@
         <Button
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
-            android:background="@drawable/switch_button"
             android:text="@string/relay_1"
             android:id="@+id/button" />
 
         <Button
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
-            android:background="@drawable/switch_button"
             android:text="@string/relay_2"
             android:id="@+id/button2" />
 
         <Button
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
-            android:background="@drawable/switch_button"
             android:text="@string/relay_3"
             android:id="@+id/button3" />
 
         <Button
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
-            android:background="@drawable/switch_button"
             android:text="@string/relay_4"
             android:id="@+id/button4" />
 
         <Button
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
-            android:background="@drawable/switch_button"
             android:text="@string/relay_5"
             android:id="@+id/button5" />
 
         <Button
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
-            android:background="@drawable/switch_button"
             android:text="@string/relay_6"
             android:id="@+id/button6" />
 
         <Button
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
-            android:background="@drawable/switch_button"
             android:text="@string/relay_7"
             android:id="@+id/button7" />
 
         <Button
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
-            android:background="@drawable/switch_button"
             android:text="@string/relay_8"
             android:id="@+id/button8" />
 
