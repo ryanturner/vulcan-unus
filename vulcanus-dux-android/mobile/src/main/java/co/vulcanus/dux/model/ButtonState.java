@@ -1,5 +1,6 @@
 package co.vulcanus.dux.model;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -9,6 +10,10 @@ public class ButtonState {
     private boolean isDefault;
     private String stateName;
     private List<Pin> pinStates;
+
+    public ButtonState() {
+        this.pinStates = new ArrayList<Pin>();
+    }
 
     public boolean isDefault() {
         return isDefault;
