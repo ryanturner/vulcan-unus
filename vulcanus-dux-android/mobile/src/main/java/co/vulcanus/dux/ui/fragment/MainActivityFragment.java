@@ -5,11 +5,18 @@ import android.graphics.PorterDuff;
 import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
 import android.os.Bundle;
+import android.util.Log;
+import android.view.DragEvent;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.GridLayout;
+import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
+
+import com.jmedeisis.draglinearlayout.DragLinearLayout;
 
 import java.util.ArrayList;
 
@@ -30,12 +37,22 @@ import retrofit.Retrofit;
 /**
  * A placeholder fragment containing a simple view.
  */
-public class MainActivityFragment extends Fragment implements View.OnClickListener, SharedPreferences.OnSharedPreferenceChangeListener {
-    RelativeLayout panel;
+public class MainActivityFragment extends Fragment implements View.OnClickListener, SharedPreferences.OnSharedPreferenceChangeListener, View.OnLongClickListener {
+    DragLinearLayout panel;
     DeviceState deviceState;
     PanelModel panelModel;
     SharedPreferences SP;
     View view;
+
+    public boolean isLayoutChangeable() {
+        return layoutChangeable;
+    }
+
+    public void setLayoutChangeable(boolean layoutChangeable) {
+        this.layoutChangeable = layoutChangeable;
+    }
+
+    boolean layoutChangeable = false;
 
     public MainActivityFragment() {
     }
@@ -44,7 +61,7 @@ public class MainActivityFragment extends Fragment implements View.OnClickListen
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         view = inflater.inflate(R.layout.fragment_main, container, false);
-        panel = (RelativeLayout)view.findViewById(R.id.panel);
+        panel = (DragLinearLayout)view.findViewById(R.id.button_grid_layout);
         panelModel = new PanelModel();
         SP = PreferenceManager.getDefaultSharedPreferences(this.getContext());
         initialCreateButtons();
@@ -57,7 +74,6 @@ public class MainActivityFragment extends Fragment implements View.OnClickListen
      * This generally should only be called on the first run
      */
     private void initialCreateButtons() {
-        panel = (RelativeLayout) view.findViewById(R.id.panel);
         for (int i = 0; i < Integer.valueOf(SP.getString(Constants.EMBEDDED_NUMBER_OF_RELAYS, Constants.EMBEDDED_NUMBER_OF_RELAYS_DEFAULT)); i++) {
             DuxButton duxButton = new DuxButton();
             Button button = new Button(getContext());
@@ -67,11 +83,6 @@ public class MainActivityFragment extends Fragment implements View.OnClickListen
                             Constants.EMBEDDED_FIRST_PIN_DEFAULT));
             button.setTag(buttonId);
             duxButton.setId(buttonId);
-            RelativeLayout.LayoutParams layoutParams = new RelativeLayout.LayoutParams(
-                    ViewGroup.LayoutParams.WRAP_CONTENT,
-                    ViewGroup.LayoutParams.WRAP_CONTENT);
-            int topMargin = (i == 0) ? 0 : i * 200;
-            layoutParams.setMargins(0, i * 200, 0, 0);
 
             ButtonState offState = new ButtonState();
             offState.setStateName("Off");
@@ -95,8 +106,8 @@ public class MainActivityFragment extends Fragment implements View.OnClickListen
             duxButton.getButtonStateList().add(onState);
 
             offState.setPinStates(offStateStates);
-            button.setLayoutParams(layoutParams);
             button.setOnClickListener(this);
+            button.setOnLongClickListener(this);
             panel.addView(button);
             duxButton.setView(button);
             panelModel.getButtons().add(duxButton);
@@ -128,6 +139,32 @@ public class MainActivityFragment extends Fragment implements View.OnClickListen
         }
     }
 
+    @Override
+    public boolean onLongClick(View v) {
+        ButtonSettingsFragment nextFrag= new ButtonSettingsFragment();
+        this.getFragmentManager().beginTransaction()
+                .replace(this.getId(), nextFrag, null)
+                .addToBackStack(null)
+                .commit();
+        return true;
+    }
+
+    public void editLayoutPressed() {
+        if(isLayoutChangeable()) {
+            for(int i = 0; i < panel.getChildCount(); i++){
+                View child = panel.getChildAt(i);
+                child.setOnTouchListener(null);
+            }
+        } else {
+            for(int i = 0; i < panel.getChildCount(); i++){
+                View child = panel.getChildAt(i);
+                // the child will act as its own drag handle
+                panel.setViewDraggable(child, child);
+            }
+        }
+            this.setLayoutChangeable(!isLayoutChangeable());
+    }
+
     private void togglePin(View v, int pinNumber) {
         Pin pin = this.deviceState.getPin(pinNumber);
         boolean reverseLogic = SP.getBoolean(Constants.EMBEDDED_REVERSE_LOGIC, Constants.EMBEDDED_REVERSE_LOGIC_DEFAULT);
@@ -142,10 +179,12 @@ public class MainActivityFragment extends Fragment implements View.OnClickListen
         call.enqueue(new Callback<String>() {
             @Override
             public void onResponse(Response<String> response, Retrofit retrofit) {
+                Log.d(Constants.LOG_TAG, "Response: " + response.body());
             }
 
             @Override
             public void onFailure(Throwable t) {
+                Log.e(Constants.LOG_TAG, "Error!");
             }
         });
     }
@@ -162,6 +201,7 @@ public class MainActivityFragment extends Fragment implements View.OnClickListen
     }
     @Override
     public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
+
         this.setDeviceState();
     }
 }

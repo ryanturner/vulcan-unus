@@ -2,12 +2,6 @@
     <string name="app_name">Dux</string>
     <string name="action_settings">Settings</string>
     <string name="preferenceActivityLabel">Preferences</string>
-    <string name="relay_1">Relay 1</string>
-    <string name="relay_2">Relay 2</string>
-    <string name="relay_3">Relay 3</string>
-    <string name="relay_4">Relay 4</string>
-    <string name="relay_5">Relay 5</string>
-    <string name="relay_6">Relay 6</string>
-    <string name="relay_7">Relay 7</string>
-    <string name="relay_8">Relay 8</string>
+    <string name="edit_layout">Edit Layout</string>
+    <string name="set_layout">Set Layout</string>
 </resources>

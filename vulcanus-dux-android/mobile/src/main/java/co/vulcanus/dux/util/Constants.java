@@ -19,5 +19,5 @@ public class Constants {
     public static final String EMBEDDED_NUMBER_OF_RELAYS_DEFAULT = "8";
     public static final String EMBEDDED_FIRST_PIN_DEFAULT = "2";
     public static final boolean EMBEDDED_REVERSE_LOGIC_DEFAULT = true;
-
+    public static final String MAIN_ACTIVITY_FRAGMENT_TAG = "mainActivityFragment";
 }

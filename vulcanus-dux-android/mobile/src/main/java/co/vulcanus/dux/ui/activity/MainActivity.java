@@ -4,14 +4,19 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.StrictMode;
+import android.support.v4.app.Fragment;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.LinearLayout;
+
 import co.vulcanus.dux.R;
+import co.vulcanus.dux.ui.fragment.MainActivityFragment;
+import co.vulcanus.dux.util.Constants;
 
 public class MainActivity extends AppCompatActivity {
-
+    private MainActivityFragment mainActivityFragment;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -21,6 +26,12 @@ public class MainActivity extends AppCompatActivity {
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
+        mainActivityFragment = new MainActivityFragment();
+
+        getSupportFragmentManager()
+                .beginTransaction()
+                .add(R.id.linear_layout_parent, mainActivityFragment)
+                .commit();
     }
 
     @Override
@@ -42,7 +53,16 @@ public class MainActivity extends AppCompatActivity {
             Intent i = new Intent(this, DuxPreferenceActivity.class);
             startActivity(i);
             return true;
+        } else if(id == R.id.action_edit_layout) {
+            if(item.getTitle().toString().equals(getString(R.string.edit_layout))) {
+                item.setTitle(R.string.set_layout);
+            } else {
+                item.setTitle(R.string.edit_layout);
+            }
+            mainActivityFragment.editLayoutPressed();
+            return true;
         }
+
 
         return super.onOptionsItemSelected(item);
     }
