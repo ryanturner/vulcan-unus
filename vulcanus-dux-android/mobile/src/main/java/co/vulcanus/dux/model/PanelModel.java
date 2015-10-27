@@ -12,7 +12,7 @@ import co.vulcanus.dux.util.Constants;
  * Created by ryan_turner on 10/21/15.
  */
 public class PanelModel implements Serializable {
-    private List<DuxButton> buttons = new ArrayList<DuxButton>();
+    private List<DuxButton> buttons = new ArrayList<>();
 
     public List<DuxButton> getButtons() {
         return buttons;
@@ -30,5 +30,19 @@ public class PanelModel implements Serializable {
 
     public void setButtons(List<DuxButton> buttons) {
         this.buttons = buttons;
+    }
+
+    public void addButton(DuxButton button) {
+        this.buttons.add(button);
+    }
+
+    public void setButtonWithId(int id, DuxButton newButton) {
+        for(int i = 0; i < buttons.size(); i++) {
+            DuxButton duxButton = buttons.get(i);
+            if(duxButton.getId() == id) {
+                buttons.set(i, newButton);
+            }
+        }
+        Log.e(Constants.LOG_TAG, "Failed to set button for ID " + id);
     }
 }

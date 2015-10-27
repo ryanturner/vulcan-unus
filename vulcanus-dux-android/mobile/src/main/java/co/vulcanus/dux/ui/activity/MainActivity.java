@@ -2,8 +2,11 @@ package co.vulcanus.dux.ui.activity;
 
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.net.wifi.WifiConfiguration;
+import android.net.wifi.WifiManager;
 import android.os.Bundle;
 import android.os.StrictMode;
+import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
@@ -25,13 +28,29 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+        if(savedInstanceState == null) {
+            SharedPreferences SP = PreferenceManager.getDefaultSharedPreferences(this);
+            mainActivityFragment = new MainActivityFragment();
 
-        mainActivityFragment = new MainActivityFragment();
+            getSupportFragmentManager()
+                    .beginTransaction()
+                    .add(R.id.linear_layout_parent, mainActivityFragment)
+                    .commit();
+            boolean wifiConnect = SP.getBoolean(Constants.EMBEDDED_WIFI_CONNECT, Constants.EMBEDDED_WIFI_CONNECT_DEFAULT);
+            if(wifiConnect) {
+                String ssid = SP.getString(Constants.EMBEDDED_WIFI_SSID, Constants.EMBEDDED_WIFI_SSID_DEFAULT);
+                String psk = SP.getString(Constants.EMBEDDED_WIFI_PSK, Constants.EMBEDDED_WIFI_PSK_DEFAULT);
+                WifiConfiguration wifiConfig = new WifiConfiguration();
+                wifiConfig.SSID = String.format("\"%s\"", ssid);
+                wifiConfig.preSharedKey = String.format("\"%s\"", psk);
 
-        getSupportFragmentManager()
-                .beginTransaction()
-                .add(R.id.linear_layout_parent, mainActivityFragment)
-                .commit();
+                WifiManager wifiManager = (WifiManager) getSystemService(WIFI_SERVICE);
+                int netId = wifiManager.addNetwork(wifiConfig);
+                wifiManager.disconnect();
+                wifiManager.enableNetwork(netId, true);
+                wifiManager.reconnect();
+            }
+        }
     }
 
     @Override
@@ -53,8 +72,8 @@ public class MainActivity extends AppCompatActivity {
             Intent i = new Intent(this, DuxPreferenceActivity.class);
             startActivity(i);
             return true;
-        } else if(id == R.id.action_edit_layout) {
-            if(item.getTitle().toString().equals(getString(R.string.edit_layout))) {
+        } else if (id == R.id.action_edit_layout) {
+            if (item.getTitle().toString().equals(getString(R.string.edit_layout))) {
                 item.setTitle(R.string.set_layout);
             } else {
                 item.setTitle(R.string.edit_layout);
@@ -65,5 +84,17 @@ public class MainActivity extends AppCompatActivity {
 
 
         return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle savedInstanceState) {
+        super.onSaveInstanceState(savedInstanceState);
+        getSupportFragmentManager().putFragment(savedInstanceState, "mainActivityFragment", mainActivityFragment);
+    }
+    @Override
+    public void onRestoreInstanceState(Bundle savedInstanceState) {
+        super.onRestoreInstanceState(savedInstanceState);
+        mainActivityFragment = (MainActivityFragment) getSupportFragmentManager().getFragment(savedInstanceState, "mainActivityFragment");
+
     }
 }

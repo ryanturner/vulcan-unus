@@ -4,4 +4,6 @@
     <string name="preferenceActivityLabel">Preferences</string>
     <string name="edit_layout">Edit Layout</string>
     <string name="set_layout">Set Layout</string>
+    <string name="button_label">Button Label</string>
+    <string name="states">States</string>
 </resources>

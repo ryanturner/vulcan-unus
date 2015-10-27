@@ -20,4 +20,10 @@ public class Constants {
     public static final String EMBEDDED_FIRST_PIN_DEFAULT = "2";
     public static final boolean EMBEDDED_REVERSE_LOGIC_DEFAULT = true;
     public static final String MAIN_ACTIVITY_FRAGMENT_TAG = "mainActivityFragment";
+    public static final String EMBEDDED_WIFI_CONNECT = "wifi_connect";
+    public static final boolean EMBEDDED_WIFI_CONNECT_DEFAULT = true;
+    public static final String EMBEDDED_WIFI_SSID = "wifi_ssid";
+    public static final String EMBEDDED_WIFI_SSID_DEFAULT = "K0RET";
+    public static final String EMBEDDED_WIFI_PSK = "wifi_psk";
+    public static final String EMBEDDED_WIFI_PSK_DEFAULT = "745rolltide";
 }
