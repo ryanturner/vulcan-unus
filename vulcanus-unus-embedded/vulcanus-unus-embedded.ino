@@ -1,45 +1,46 @@
-#include <Bridge.h>
-#include <YunClient.h>
-#include <FileIO.h>
-#include <HttpClient.h>
-#include <Process.h>
-#include <YunServer.h>
-#include <Mailbox.h>
-#include <Console.h>
 #include <ArduinoJson.h>
+#include <SoftwareSerial.h>
+
+SoftwareSerial BT(10, 11); 
 int switchPins[] = {2,3,4,5,6,7,8,9};
 int switchPinCount = 8;
+String message;
+
 void setup() {
   Serial.begin(9600);
-  Bridge.begin();
-  Mailbox.begin();
+  BT.begin(9600);
   for(int i = 0; i < switchPinCount; i++){
-    pinMode(switchPins[i], OUTPUT);
-    digitalWrite(switchPins[i], HIGH);
+    pinMode(i, OUTPUT);
+    digitalWrite(i, HIGH);
   }
 }
 
 void loop() {
-  Serial.println("Looping");
-  String message;
-  while (Mailbox.messageAvailable())
-  {
-    Serial.println("Found a message!");
-    Mailbox.readMessage(message);
+  while(BT.available()) {
+    char mychar = BT.read();
+    message += mychar;
+  }
+  if(!BT.available()) {
+    if(message!="") {
+    message.trim();
+    Serial.println("Done processing message!");
     Serial.println(message);
-    if(message.length() == 49) {
-      StaticJsonBuffer<200> jsonBuffer;
-      JsonObject& root = jsonBuffer.parseObject(message);
-      if (!root.success())
-      {
-        Serial.println("parseObject() failed");
-        return;
+      if(message.length() == 49) {
+        StaticJsonBuffer<200> jsonBuffer;
+        JsonObject& root = jsonBuffer.parseObject(message);
+        if (!root.success())
+        {
+          Serial.println('{"status":"failure"}');
+          return;
+        }
+        for(int i = 0; i < switchPinCount; i++){
+          String pin = String(switchPins[i]);
+          digitalWrite(switchPins[i], root[pin]);
+        }
+        root.printTo(Serial);
       }
-      for(int i = 0; i < switchPinCount; i++){
-        String pin = String(switchPins[i]);
-        digitalWrite(switchPins[i], root[pin]);
-        Serial.println("Setting pin " + pin + " to " + switchPins[i]);
-      }
+      message=""; //clear the data
     }
   }
+  delay(100);
 }
