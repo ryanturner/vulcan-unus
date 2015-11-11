@@ -22,9 +22,7 @@ void loop() {
   }
   if(!BT.available()) {
     if(message!="") {
-    message.trim();
-    Serial.println("Done processing message!");
-    Serial.println(message);
+      message.trim();
       if(message.length() == 49) {
         StaticJsonBuffer<200> jsonBuffer;
         JsonObject& root = jsonBuffer.parseObject(message);
