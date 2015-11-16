@@ -4,5 +4,9 @@
     <item android:id="@+id/action_settings" android:title="@string/action_settings"
         android:orderInCategory="100" app:showAsAction="never" />
     <item android:id="@+id/action_edit_layout" android:title="@string/edit_layout"
-        android:orderInCategory="101" app:showAsAction="always" />
+        android:orderInCategory="101" app:showAsAction="ifRoom" />
+    <item android:id="@+id/action_connect" android:title="@string/connect"
+        android:orderInCategory="102" app:showAsAction="always" />
+    <item android:id="@+id/action_disconnect" android:title="@string/disconnect"
+        android:orderInCategory="103" app:showAsAction="ifRoom" />
 </menu>

@@ -17,6 +17,9 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
+    lintOptions {
+        disable 'PrivateResource'
+    }
 }
 
 
@@ -27,10 +30,7 @@ dependencies {
     compile 'com.android.support:appcompat-v7:23.1.0'
     compile 'com.google.android.gms:play-services:8.1.0'
     compile 'com.android.support:design:23.1.0'
-    compile 'com.squareup.retrofit:retrofit:2.0.0-beta2'
-    compile 'com.squareup.okhttp:okhttp:2.4.0'
     compile 'com.google.code.gson:gson:2.3'
-    compile 'com.squareup.retrofit:converter-gson:2.0.0-beta2'
     compile 'com.jmedeisis:draglinearlayout:1.1.0'
-
+    compile 'com.macroyau:blue2serial:0.1.2'
 }

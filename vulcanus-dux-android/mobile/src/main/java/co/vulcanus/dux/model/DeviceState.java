@@ -1,32 +1,16 @@
 package co.vulcanus.dux.model;
 
-import android.content.SharedPreferences;
 import android.os.Parcel;
 import android.os.Parcelable;
-import android.preference.PreferenceManager;
-import android.util.Base64;
 import android.util.Log;
 
 import com.google.gson.GsonBuilder;
-import com.squareup.okhttp.Credentials;
-import com.squareup.okhttp.Interceptor;
-import com.squareup.okhttp.OkHttpClient;
-import com.squareup.okhttp.Request;
 
-import java.io.IOException;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import co.vulcanus.dux.model.serializer.DeviceStateSerializer;
-import co.vulcanus.dux.service.ApiService;
 import co.vulcanus.dux.util.Constants;
-import retrofit.Call;
-import retrofit.Callback;
-import retrofit.GsonConverterFactory;
-import retrofit.Response;
-import retrofit.Retrofit;
 
 /**
  * Created by ryan_turner on 10/19/15.
@@ -80,16 +64,26 @@ public class DeviceState implements Parcelable {
     public int getLastPin() {
         return this.lastPin;
     }
+    public List<Pin> getPins() {
+        return this.pins;
+    }
     public String toString() {
         com.google.gson.Gson gson = new GsonBuilder().registerTypeAdapter(DeviceState.class, new
                 DeviceStateSerializer()).create();
         return gson.toJson(this);
     }
-    public void setPins(List<Pin> pins) {
+    public void setPins(List<Pin> pins, boolean isOn) {
         for(Pin pin : pins) {
             for(int i = 0; i < this.pins.size(); i++) {
                 if(pin.getNumber() == this.pins.get(i).getNumber()) {
-                    this.pins.set(i, pin);
+                    if(isOn)
+                        this.pins.set(i, pin);
+                    else {
+                        Pin pinCopy = new Pin();
+                        pinCopy.setIsHigh(!pin.isHigh());
+                        pinCopy.setNumber(pin.getNumber());
+                        this.pins.set(i, pinCopy);
+                    }
                     break;
                 }
             }
@@ -123,5 +117,16 @@ public class DeviceState implements Parcelable {
         dest.writeInt(firstPin);
         dest.writeInt(lastPin);
         dest.writeByte((byte) (reverseLogic ? 1 : 0));
+    }
+
+    public static List<Pin> getEmptyListOfPins(int numberOfRelays, int firstPinNumber) {
+        List<Pin> pins = new ArrayList<Pin>();
+        for (int i = firstPinNumber; i < numberOfRelays + firstPinNumber; i++) {
+            Pin pin = new Pin();
+            pin.setNumber(i);
+            pin.setIsHigh(false);
+            pins.add(pin);
+        }
+        return pins;
     }
 }

@@ -12,6 +12,9 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ToggleButton;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.reflect.TypeToken;
 import com.jmedeisis.draglinearlayout.DragLinearLayout;
 
 import java.util.ArrayList;
@@ -21,12 +24,8 @@ import co.vulcanus.dux.R;
 import co.vulcanus.dux.model.DeviceState;
 import co.vulcanus.dux.model.DuxButton;
 import co.vulcanus.dux.model.Pin;
-import co.vulcanus.dux.service.RestClient;
+import co.vulcanus.dux.ui.activity.MainActivity;
 import co.vulcanus.dux.util.Constants;
-import retrofit.Call;
-import retrofit.Callback;
-import retrofit.Response;
-import retrofit.Retrofit;
 
 
 /**
@@ -38,6 +37,7 @@ public class MainActivityFragment extends Fragment implements View.OnClickListen
     SharedPreferences SP;
     View view;
     ArrayList<DuxButton> buttons;
+    private Gson gson = new GsonBuilder().create();
 
     public boolean isLayoutChangeable() {
         return layoutChangeable;
@@ -61,13 +61,36 @@ public class MainActivityFragment extends Fragment implements View.OnClickListen
         this.setDeviceState();
         if(savedInstanceState == null) {
             if(buttons == null) {
-                initialCreateDuxButtons();
+                String savedValue = SP.getString(Constants.BUTTON_OBJECT, "");
+                if (!savedValue.equals("")) {
+                    buttons = gson.fromJson(savedValue, new TypeToken<ArrayList<DuxButton>>() {}.getType());
+                } else {
+                    initialCreateDuxButtons();
+                }
             }
         } else {
             buttons = savedInstanceState.getParcelableArrayList("buttons");
             deviceState = savedInstanceState.getParcelable("deviceState");
         }
         createButtons();
+        panel.setOnViewSwapListener(new DragLinearLayout.OnViewSwapListener() {
+            @Override
+            public void onSwap(View firstView, int firstPosition,
+                               View secondView, int secondPosition) {
+                DuxButton firstButton = null;
+                DuxButton secondButton = null;
+                for (DuxButton dButton : buttons) {
+                    if (dButton.getId() == Integer.parseInt(firstView.getTag().toString())) {
+                        firstButton = dButton;
+                    } else if (dButton.getId() == Integer.parseInt(secondView.getTag().toString())) {
+                        secondButton = dButton;
+                    }
+                }
+                buttons.set(firstPosition, secondButton);
+                buttons.set(secondPosition, firstButton);
+                SP.edit().putString(Constants.BUTTON_OBJECT, gson.toJson(buttons)).apply();
+            }
+        });
         return view;
     }
 
@@ -96,6 +119,10 @@ public class MainActivityFragment extends Fragment implements View.OnClickListen
         }
     }
     private void createButtons() {
+        if(buttons == null) {
+            Log.e(Constants.LOG_TAG, "Somehow buttons was null?");
+            return;
+        }
         for (DuxButton duxButton : buttons) {
             ToggleButton button = new ToggleButton(getContext());
             button.setText(duxButton.getLabel());
@@ -112,21 +139,13 @@ public class MainActivityFragment extends Fragment implements View.OnClickListen
         }
     }
     public void setDeviceState() {
-        SharedPreferences SP = PreferenceManager.getDefaultSharedPreferences(this.getContext());
         String firstPin = SP.getString(Constants.EMBEDDED_FIRST_PIN,
                 Constants.EMBEDDED_FIRST_PIN_DEFAULT);
         String numberOfRelays = SP.getString(Constants.EMBEDDED_NUMBER_OF_RELAYS,
                 Constants.EMBEDDED_NUMBER_OF_RELAYS_DEFAULT);
-        String host = SP.getString(Constants.EMBEDDED_HOST, Constants.EMBEDDED_HOST_DEFAULT);
-        String username = SP.getString(Constants.EMBEDDED_USER, Constants.EMBEDDED_USER_DEFAULT);
-        String password = SP.getString(Constants.EMBEDDED_PASSWORD, Constants.EMBEDDED_PASSWORD_DEFAULT);
         this.deviceState = new DeviceState(Integer.parseInt(firstPin), Integer.parseInt(firstPin) +
                 Integer.parseInt(numberOfRelays));
         deviceState.setReverseLogic(SP.getBoolean(Constants.EMBEDDED_REVERSE_LOGIC, Constants.EMBEDDED_REVERSE_LOGIC_DEFAULT));
-        RestClient.destroyInstance();
-        RestClient.setBaseUrl(host);
-        RestClient.setUsername(username);
-        RestClient.setPassword(password);
     }
 
     @Override
@@ -139,6 +158,7 @@ public class MainActivityFragment extends Fragment implements View.OnClickListen
     public boolean onLongClick(View v) {
         ButtonSettingsFragment nextFrag= new ButtonSettingsFragment();
         nextFrag.setDuxButton(DuxButton.getDuxButtonWithId(buttons, (int) v.getTag()));
+        nextFrag.setDeviceState(deviceState);
         this.getFragmentManager().beginTransaction()
                 .replace(this.getId(), nextFrag)
                 .addToBackStack(null)
@@ -165,30 +185,21 @@ public class MainActivityFragment extends Fragment implements View.OnClickListen
     private void togglePin(View v, int pinNumber) {
         final ToggleButton button = (ToggleButton) v;
         final DuxButton duxButton = DuxButton.getDuxButtonWithId(buttons, (Integer) button.getTag());
-        List<Pin> pins = duxButton.getButtonState(button.isChecked()).getPinStates();
-        this.deviceState.setPins(pins);
+        List<Pin> pins = duxButton.getButtonState().getPinStates();
+        this.deviceState.setPins(pins, button.isChecked());
+        MainActivity activity = (MainActivity) getActivity();
+        String command = this.deviceState.toString();
+        activity.bluetoothSerial.write(command);
+        Log.i(Constants.LOG_TAG, command);
 
         final ColorFilter oldColorFilter = v.getBackground().getColorFilter();
         v.getBackground().setColorFilter(getResources().getColor(R.color.material_red_100), PorterDuff.Mode.MULTIPLY);
-        Call<String> call = RestClient.getInstance().getService().sendMailbox(this.deviceState);
-        call.enqueue(new Callback<String>() {
-            @Override
-            public void onResponse(Response<String> response, Retrofit retrofit) {
-                duxButton.setIsOn(!duxButton.isOn());
-                if (duxButton.isOn()) {
-                    button.getBackground().setColorFilter(getResources().getColor(R.color.material_red_300), PorterDuff.Mode.MULTIPLY);
-                } else {
-                    button.getBackground().setColorFilter(null);
-                }
-            }
 
-            @Override
-            public void onFailure(Throwable t) {
-                Log.e(Constants.LOG_TAG, "Error!");
-                button.getBackground().setColorFilter(oldColorFilter);
-                button.setChecked(!button.isChecked());
-            }
-        });
+        if (duxButton.isOn()) {
+            button.getBackground().setColorFilter(getResources().getColor(R.color.material_red_300), PorterDuff.Mode.MULTIPLY);
+        } else {
+            button.getBackground().setColorFilter(null);
+        }
     }
     @Override
     public void onResume() {
@@ -199,6 +210,7 @@ public class MainActivityFragment extends Fragment implements View.OnClickListen
     @Override
     public void onPause() {
         PreferenceManager.getDefaultSharedPreferences(getActivity()).registerOnSharedPreferenceChangeListener(this);
+
         super.onPause();
     }
     @Override

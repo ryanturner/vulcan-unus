@@ -16,13 +16,13 @@ void setup() {
 }
 
 void loop() {
-  while(BT.available()) {
+  while(BT.available())
+  {//while there is data available on the serial monitor
     char mychar = BT.read();
-    message += mychar;
+    message += mychar;//store string from serial command
   }
   if(!BT.available()) {
-    if(message!="") {
-      message.trim();
+    if(message!="") {//if data is available
       if(message.length() == 49) {
         StaticJsonBuffer<200> jsonBuffer;
         JsonObject& root = jsonBuffer.parseObject(message);
@@ -40,5 +40,5 @@ void loop() {
       message=""; //clear the data
     }
   }
-  delay(100);
+  delay(500);
 }

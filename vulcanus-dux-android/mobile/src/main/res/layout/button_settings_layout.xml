@@ -8,29 +8,41 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/button_label"
-        android:id="@+id/textView" />
+        android:id="@+id/textView"
+        android:labelFor="@+id/button_label_edit_text"/>
 
     <EditText
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:id="@+id/button_label_edit_text"
+        android:id="@id/button_label_edit_text"
         android:inputType="textCapWords" />
 
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="@string/states"
-        android:id="@+id/textView2" />
+        android:text="@string/pins_to_turn_on"
+        android:id="@+id/pins_turn_on_label" />
 
     <ListView
         android:layout_width="match_parent"
-        android:layout_height="296dp"
-        android:id="@+id/listView"
+        android:layout_height="200dp"
+        android:id="@+id/pins_turn_on"
+        android:choiceMode="multipleChoice" />
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/pins_to_turn_off"
+        android:id="@+id/pins_turn_off_label" />
+
+    <ListView
+        android:layout_width="match_parent"
+        android:layout_height="200dp"
+        android:id="@+id/pins_turn_off"
         android:choiceMode="multipleChoice" />
 
     <Button
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Save"
+        android:text="@string/save"
         android:id="@+id/save_button" />
 </LinearLayout>

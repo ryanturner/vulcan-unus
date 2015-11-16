@@ -1,9 +1,19 @@
 <resources>
     <string name="app_name">Dux</string>
     <string name="action_settings">Settings</string>
-    <string name="preferenceActivityLabel">Preferences</string>
     <string name="edit_layout">Edit Layout</string>
     <string name="set_layout">Set Layout</string>
     <string name="button_label">Button Label</string>
-    <string name="states">States</string>
+    <string name="connect">Connect</string>
+    <string name="disconnect">Disconnect</string>
+    <string name="no_bluetooth">No bluetooth</string>
+    <string name="action_quit">Quit!</string>
+    <string name="paired_devices">Paired Devices</string>
+    <string name="status_connected">Connected</string>
+    <string name="status_disconnected">Disconnected</string>
+    <string name="status_connecting">Connecting</string>
+    <string name="save">Save</string>
+    <string name="pins_to_turn_on">When the button is on, turn on the following pins</string>
+    <string name="pins_to_turn_off">When the button is on, turn off the following pins</string>
+    <string name="bluetooth_device">Bluetooth Device</string>
 </resources>
