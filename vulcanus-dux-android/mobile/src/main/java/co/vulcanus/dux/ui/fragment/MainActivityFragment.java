@@ -31,7 +31,7 @@ import co.vulcanus.dux.util.Constants;
 /**
  * A placeholder fragment containing a simple view.
  */
-public class MainActivityFragment extends Fragment implements View.OnClickListener, SharedPreferences.OnSharedPreferenceChangeListener, View.OnLongClickListener {
+public class MainActivityFragment extends Fragment implements View.OnClickListener, SharedPreferences.OnSharedPreferenceChangeListener {
     DragLinearLayout panel;
     DeviceState deviceState;
     SharedPreferences SP;
@@ -72,7 +72,7 @@ public class MainActivityFragment extends Fragment implements View.OnClickListen
             buttons = savedInstanceState.getParcelableArrayList("buttons");
             deviceState = savedInstanceState.getParcelable("deviceState");
         }
-        createButtons();
+        createPanel();
         panel.setOnViewSwapListener(new DragLinearLayout.OnViewSwapListener() {
             @Override
             public void onSwap(View firstView, int firstPosition,
@@ -101,6 +101,24 @@ public class MainActivityFragment extends Fragment implements View.OnClickListen
         savedInstanceState.putParcelable("deviceState", deviceState);
     }
 
+    public ToggleButton addButton() {
+        int id = 0;
+        for(DuxButton button : buttons) {
+            if(button.getId() >= id) id = button.getId() + 1;
+        }
+        DuxButton duxButton = new DuxButton(id);
+        duxButton.setLabel("Button");
+        buttons.add(duxButton);
+        ToggleButton button = new ToggleButton(getContext());
+        button.setText(duxButton.getLabel());
+        button.setTextOn(duxButton.getLabel());
+        button.setTextOff(duxButton.getLabel());
+        button.setTag(duxButton.getId());
+        button.setOnClickListener(this);
+        panel.addView(button);
+        return button;
+    }
+
 
     /**
      * This method gets called when the app needs to start from scratch and create all of the buttons
@@ -118,11 +136,12 @@ public class MainActivityFragment extends Fragment implements View.OnClickListen
             buttons.add(duxButton);
         }
     }
-    private void createButtons() {
+    private void createPanel() {
         if(buttons == null) {
-            Log.e(Constants.LOG_TAG, "Somehow buttons was null?");
+            Log.wtf(Constants.LOG_TAG, "Somehow buttons was null?");
             return;
         }
+        panel.removeAllViews();
         for (DuxButton duxButton : buttons) {
             ToggleButton button = new ToggleButton(getContext());
             button.setText(duxButton.getLabel());
@@ -130,12 +149,13 @@ public class MainActivityFragment extends Fragment implements View.OnClickListen
             button.setTextOff(duxButton.getLabel());
             button.setTag(duxButton.getId());
             button.setOnClickListener(this);
-            button.setOnLongClickListener(this);
+            button.setChecked(duxButton.isOn());
             if(duxButton.isOn()) {
                 button.getBackground().setColorFilter(getResources().getColor(R.color.material_red_300), PorterDuff.Mode.MULTIPLY);
                 button.setChecked(true);
             }
             panel.addView(button);
+
         }
     }
     public void setDeviceState() {
@@ -150,20 +170,21 @@ public class MainActivityFragment extends Fragment implements View.OnClickListen
 
     @Override
     public void onClick(View v) {
-        int id = Integer.valueOf(v.getTag().toString());
-        this.togglePin(v, id);
-    }
-
-    @Override
-    public boolean onLongClick(View v) {
-        ButtonSettingsFragment nextFrag= new ButtonSettingsFragment();
-        nextFrag.setDuxButton(DuxButton.getDuxButtonWithId(buttons, (int) v.getTag()));
-        nextFrag.setDeviceState(deviceState);
-        this.getFragmentManager().beginTransaction()
-                .replace(this.getId(), nextFrag)
-                .addToBackStack(null)
-                .commit();
-        return true;
+        if(isLayoutChangeable()) {
+            ButtonSettingsFragment nextFrag = new ButtonSettingsFragment();
+            nextFrag.setDuxButton(DuxButton.getDuxButtonWithId(buttons, (int) v.getTag()));
+            nextFrag.setDeviceState(deviceState);
+            nextFrag.setButtons(buttons);
+            this.getFragmentManager().beginTransaction()
+                    .replace(this.getId(), nextFrag)
+                    .addToBackStack(null)
+                    .commit();
+        } else {
+            if (v instanceof ToggleButton) {
+                int id = Integer.valueOf(v.getTag().toString());
+                this.togglePin(v, id);
+            }
+        }
     }
 
     public void editLayoutPressed() {
@@ -179,7 +200,7 @@ public class MainActivityFragment extends Fragment implements View.OnClickListen
                 panel.setViewDraggable(child, child);
             }
         }
-            this.setLayoutChangeable(!isLayoutChangeable());
+        this.setLayoutChangeable(!isLayoutChangeable());
     }
 
     private void togglePin(View v, int pinNumber) {
@@ -187,22 +208,35 @@ public class MainActivityFragment extends Fragment implements View.OnClickListen
         final DuxButton duxButton = DuxButton.getDuxButtonWithId(buttons, (Integer) button.getTag());
         List<Pin> pins = duxButton.getButtonState().getPinStates();
         this.deviceState.setPins(pins, button.isChecked());
-        MainActivity activity = (MainActivity) getActivity();
-        String command = this.deviceState.toString();
-        activity.bluetoothSerial.write(command);
-        Log.i(Constants.LOG_TAG, command);
+        if(writeDeviceState()) { //Update worked, so reflect the change in our data model.
+            duxButton.setIsOn(!duxButton.isOn());
+        }
 
-        final ColorFilter oldColorFilter = v.getBackground().getColorFilter();
-        v.getBackground().setColorFilter(getResources().getColor(R.color.material_red_100), PorterDuff.Mode.MULTIPLY);
-
+        ToggleButton toggleButton = (ToggleButton) v;
         if (duxButton.isOn()) {
             button.getBackground().setColorFilter(getResources().getColor(R.color.material_red_300), PorterDuff.Mode.MULTIPLY);
+            toggleButton.setChecked(true);
         } else {
             button.getBackground().setColorFilter(null);
+            toggleButton.setChecked(false);
+
+        }
+    }
+    private boolean writeDeviceState() {
+        MainActivity activity = (MainActivity) getActivity();
+        if (activity.bluetoothSerial.isConnected()) {
+            String command = this.deviceState.toString();
+            activity.bluetoothSerial.write(command);
+            Log.i(Constants.LOG_TAG, command);
+            return true;
+        } else {
+            return false;
         }
     }
     @Override
     public void onResume() {
+        createPanel();
+        writeDeviceState();
         super.onResume();
         PreferenceManager.getDefaultSharedPreferences(getActivity()).unregisterOnSharedPreferenceChangeListener(this);
     }
@@ -210,12 +244,10 @@ public class MainActivityFragment extends Fragment implements View.OnClickListen
     @Override
     public void onPause() {
         PreferenceManager.getDefaultSharedPreferences(getActivity()).registerOnSharedPreferenceChangeListener(this);
-
         super.onPause();
     }
     @Override
     public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
-
         this.setDeviceState();
     }
 }

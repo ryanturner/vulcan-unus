@@ -17,6 +17,10 @@ import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.reflect.TypeToken;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -36,10 +40,11 @@ public class ButtonSettingsFragment extends Fragment implements View.OnClickList
     private ListView pinsTurnOn;
     private ListView pinsTurnOff;
     private DuxButton duxButton;
+    private ArrayList<DuxButton> buttons;
     private SharedPreferences SP;
 
     private DeviceState deviceState;
-    private Button save_button;
+    private Button save_button, delete_button;
 
     public DuxButton getDuxButton() {
         return duxButton;
@@ -55,6 +60,14 @@ public class ButtonSettingsFragment extends Fragment implements View.OnClickList
 
     public void setDeviceState(DeviceState deviceState) {
         this.deviceState = deviceState;
+    }
+
+    public ArrayList<DuxButton> getButtons() {
+        return buttons;
+    }
+
+    public void setButtons(ArrayList<DuxButton> buttons) {
+        this.buttons = buttons;
     }
 
     @Override
@@ -83,6 +96,8 @@ public class ButtonSettingsFragment extends Fragment implements View.OnClickList
         button_label_edit_text.addTextChangedListener(button_label_edit_text_watcher);
         save_button = (Button) view.findViewById(R.id.save_button);
         save_button.setOnClickListener(this);
+        delete_button = (Button) view.findViewById(R.id.delete_button);
+        delete_button.setOnClickListener(this);
         List<String> pin_list = new ArrayList<String>();
         for(Pin pin : deviceState.getPins()) {
             pin_list.add(Integer.toString(pin.getNumber()));
@@ -137,6 +152,13 @@ public class ButtonSettingsFragment extends Fragment implements View.OnClickList
                 //Log.e(Constants.LOG_TAG, pins.toString());
                 duxButton.setPins(pins);
 
+                getFragmentManager().popBackStackImmediate();
+                break;
+            }
+            case(R.id.delete_button): {
+                Gson gson = new GsonBuilder().create();
+                buttons.remove(this.duxButton);
+                SP.edit().putString(Constants.BUTTON_OBJECT, gson.toJson(buttons)).apply();
                 getFragmentManager().popBackStackImmediate();
                 break;
             }

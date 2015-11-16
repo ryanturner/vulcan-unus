@@ -4,6 +4,7 @@ import android.bluetooth.BluetoothDevice;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.EditTextPreference;
+import android.preference.ListPreference;
 import android.preference.MultiSelectListPreference;
 import android.preference.Preference;
 import android.preference.PreferenceActivity;
@@ -63,10 +64,13 @@ public class DuxPreferenceActivity extends PreferenceActivity {
         {
             super.onCreate(savedInstanceState);
             addPreferencesFromResource(R.xml.preferences);
-            MultiSelectListPreference bluetoothDevice = (MultiSelectListPreference) findPreference(getString(R.string.bluetooth_device));
+            ListPreference bluetoothDevice = (ListPreference) findPreference(getString(R.string.bluetooth_device));
             DuxPreferenceActivity duxPreferenceActivity = (DuxPreferenceActivity) getActivity();
             if(duxPreferenceActivity != null && duxPreferenceActivity.getBluetoothSerial() != null) {
-                bluetoothDevice.setEntries((String[]) duxPreferenceActivity.getBluetoothSerial().values().toArray());
+                String[] values = duxPreferenceActivity.getBluetoothSerial().values().toArray(new String[0]);
+                String[] keys = (String[]) duxPreferenceActivity.getBluetoothSerial().keySet().toArray(new String[0]);
+                bluetoothDevice.setEntries(values);
+                bluetoothDevice.setEntryValues(keys);
             } else {
                 String[] emptyEntries = new String[1];
                 emptyEntries[0] = "Add a bluetooth device";

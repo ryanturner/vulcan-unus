@@ -4,8 +4,10 @@ import android.app.Activity;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.StrictMode;
+import android.preference.PreferenceManager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
@@ -29,19 +31,11 @@ public class MainActivity extends AppCompatActivity implements BluetoothSerialLi
     private MainActivityFragment mainActivityFragment;
     private boolean crlf = false;
     private static final int REQUEST_ENABLE_BLUETOOTH = 1;
-    private MenuItem actionConnect, actionDisconnect;
-    private BluetoothDevice bluetoothDevice;
+    private MenuItem actionConnect, actionDisconnect, actionAdd;
     public BluetoothSerial bluetoothSerial;
+    SharedPreferences SP;
 
 
-
-    public BluetoothDevice getBluetoothDevice() {
-        return bluetoothDevice;
-    }
-
-    public void setBluetoothDevice(BluetoothDevice bluetoothDevice) {
-        this.bluetoothDevice = bluetoothDevice;
-    }
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -56,9 +50,8 @@ public class MainActivity extends AppCompatActivity implements BluetoothSerialLi
                     .beginTransaction()
                     .add(R.id.linear_layout_parent, mainActivityFragment)
                     .commit();
-        } else {
-            setBluetoothDevice((BluetoothDevice) savedInstanceState.getParcelable(Constants.BLUETOOTH_DEVICE));
         }
+        SP = PreferenceManager.getDefaultSharedPreferences(this);
         bluetoothSerial = new BluetoothSerial(this, this);
     }
 
@@ -77,9 +70,7 @@ public class MainActivity extends AppCompatActivity implements BluetoothSerialLi
         if (bluetoothSerial.isBluetoothEnabled()) {
             if (!bluetoothSerial.isConnected()) {
                 bluetoothSerial.start();
-                if(getBluetoothDevice() != null) {
-                    bluetoothSerial.connect(getBluetoothDevice());
-                }
+                connectBluetooth();
             }
         }
     }
@@ -98,6 +89,8 @@ public class MainActivity extends AppCompatActivity implements BluetoothSerialLi
         getMenuInflater().inflate(R.menu.menu_main, menu);
         actionConnect = menu.findItem(R.id.action_connect);
         actionDisconnect = menu.findItem(R.id.action_disconnect);
+        actionAdd = menu.findItem(R.id.action_add);
+        actionAdd.setVisible(false);
         invalidateOptionsMenu();
         return true;
     }
@@ -122,17 +115,21 @@ public class MainActivity extends AppCompatActivity implements BluetoothSerialLi
         } else if (id == R.id.action_edit_layout) {
             if (item.getTitle().toString().equals(getString(R.string.edit_layout))) {
                 item.setTitle(R.string.set_layout);
+                actionAdd.setVisible(true);
             } else {
                 item.setTitle(R.string.edit_layout);
+                actionAdd.setVisible(false);
             }
             mainActivityFragment.editLayoutPressed();
             return true;
         } else if (id == R.id.action_connect) {
-            bluetoothSerial.connect(getBluetoothDevice());
+            connectBluetooth();
             return true;
         } else if (id == R.id.action_disconnect) {
             bluetoothSerial.stop();
             return true;
+        } else if (id == R.id.action_add) {
+            mainActivityFragment.onClick(mainActivityFragment.addButton());
         }
 
         return super.onOptionsItemSelected(item);
@@ -142,8 +139,8 @@ public class MainActivity extends AppCompatActivity implements BluetoothSerialLi
     public void onSaveInstanceState(Bundle savedInstanceState) {
         super.onSaveInstanceState(savedInstanceState);
         getSupportFragmentManager().putFragment(savedInstanceState, "mainActivityFragment", mainActivityFragment);
-        savedInstanceState.putParcelable(Constants.BLUETOOTH_DEVICE, getBluetoothDevice());
     }
+
     @Override
     public void onRestoreInstanceState(Bundle savedInstanceState) {
         super.onRestoreInstanceState(savedInstanceState);
@@ -270,5 +267,15 @@ public class MainActivity extends AppCompatActivity implements BluetoothSerialLi
         //        bluetoothSerial.getLocalAdapterName(),
         //        message));
         //svTerminal.post(scrollTerminalToBottom);
+    }
+
+    private void connectBluetooth() {
+        String bluetoothHost = SP.getString(getString(R.string.bluetooth_device), "");
+        if(!bluetoothHost.isEmpty()) {
+            BluetoothDevice device = BluetoothAdapter.getDefaultAdapter().getRemoteDevice(bluetoothHost);
+            if(device != null) {
+                bluetoothSerial.connect(device);
+            }
+        }
     }
 }

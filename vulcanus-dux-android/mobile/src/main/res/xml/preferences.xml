@@ -26,7 +26,7 @@
         android:key="embedded_reverse_logic"
         android:defaultValue="true"
         android:summary="Use this if your relay bank has reverse logic, e.g. if turning a pin off actually turns the relay on."></CheckBoxPreference>
-    <MultiSelectListPreference android:title="Bluetooth Device"
+    <ListPreference android:title="Bluetooth Device"
         android:key="@string/bluetooth_device"
         android:summary="Select the bluetooth device for the Vulcanus you wish to use."/>
     <!--<ListPreference     android:title="Download Details"

@@ -13,6 +13,7 @@
     <string name="status_disconnected">Disconnected</string>
     <string name="status_connecting">Connecting</string>
     <string name="save">Save</string>
+    <string name="add">Add</string>
     <string name="pins_to_turn_on">When the button is on, turn on the following pins</string>
     <string name="pins_to_turn_off">When the button is on, turn off the following pins</string>
     <string name="bluetooth_device">Bluetooth Device</string>

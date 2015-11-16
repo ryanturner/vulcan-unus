@@ -84,14 +84,12 @@ public class DuxButton implements Parcelable {
         this.label = label;
     }
 
-
+    public DuxButton() {
+        pins = new ArrayList<Pin>();
+    }
     public DuxButton(int id) {
         this.id = id;
         pins = new ArrayList<Pin>();
-        Pin pin = new Pin();
-        pin.setIsHigh(true);
-        pin.setNumber(id);
-        pins.add(pin);
     }
 
     public int getId() {
